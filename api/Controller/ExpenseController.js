@@ -5,35 +5,55 @@ import moment from 'moment';
 // Create expense
 export const createExpense = async (req, res) => {
   try {
-    const { description, amount, category, date } = req.body;
+    const { amount, description, category, date } = req.body;
 
-    // Check wallet balance
+    // Validate input
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ message: 'Please enter a valid amount' });
+    }
+
+    // Find user's wallet
     const wallet = await Wallet.findOne({ user: req.user._id });
-    if (!wallet || wallet.currentBalance < amount) {
+    if (!wallet) {
+      return res.status(404).json({ message: 'Wallet not found' });
+    }
+
+    // Check if sufficient balance
+    if (wallet.currentBalance < amount) {
       return res.status(400).json({ message: 'Insufficient balance' });
     }
 
-    const expense = new Expense({
+    // Create expense
+    const expense = await Expense.create({
       user: req.user._id,
+      amount: parseFloat(amount),
       description,
-      amount,
       category,
       date: date || new Date()
     });
 
-    // Update wallet balance
-    wallet.currentBalance -= amount;
+    // Update wallet
+    wallet.currentBalance -= parseFloat(amount);
     wallet.transactions.push({
-      type: 'DEBIT',
-      amount,
-      description: `Expense: ${description}`,
+      type: 'debit',
+      amount: parseFloat(amount),
+      description: description || 'Expense',
       date: new Date()
     });
 
-    await Promise.all([expense.save(), wallet.save()]);
-    res.status(201).json(expense);
+    await wallet.save();
+
+    res.status(201).json({
+      expense,
+      walletBalance: wallet.currentBalance,
+      transactions: wallet.transactions
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Create Expense Error:', error);
+    res.status(500).json({ 
+      message: 'Error creating expense',
+      error: error.message 
+    });
   }
 };
 
@@ -131,31 +151,45 @@ export const updateExpense = async (req, res) => {
 // Delete expense
 export const deleteExpense = async (req, res) => {
   try {
-    const expense = await Expense.findOne({
+    const expense = await Expense.findOne({ 
       _id: req.params.id,
-      user: req.user._id
+      user: req.user._id 
     });
 
     if (!expense) {
       return res.status(404).json({ message: 'Expense not found' });
     }
 
-    // Update wallet balance
+    // Find wallet and refund the amount
     const wallet = await Wallet.findOne({ user: req.user._id });
-    if (wallet) {
-      wallet.currentBalance += expense.amount;
-      wallet.transactions.push({
-        type: 'CREDIT',
-        amount: expense.amount,
-        description: `Expense deleted: ${expense.description}`,
-        date: new Date()
-      });
-      await wallet.save();
+    if (!wallet) {
+      return res.status(404).json({ message: 'Wallet not found' });
     }
 
-    await expense.deleteOne();
-    res.json({ message: 'Expense deleted', amount: expense.amount });
+    // Refund the amount to wallet
+    wallet.currentBalance += expense.amount;
+    
+    // Add refund transaction
+    wallet.transactions.push({
+      type: 'credit',
+      amount: expense.amount,
+      description: `Refund: ${expense.description} (Deleted)`,
+      date: new Date()
+    });
+
+    // Delete expense and update wallet
+    await Promise.all([
+      expense.deleteOne(),
+      wallet.save()
+    ]);
+
+    res.json({
+      message: 'Expense deleted successfully',
+      currentBalance: wallet.currentBalance,
+      transactions: wallet.transactions
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Delete Expense Error:', error);
+    res.status(500).json({ message: 'Error deleting expense' });
   }
 };

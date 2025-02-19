@@ -66,7 +66,7 @@ if (!fs.existsSync('./uploads')) {
 app.post('/api/register', register);
 app.post('/api/login', login);
 app.get('/api/profile', protect, getUserProfile);
-app.put('/api/profile', protect, updateProfile);
+app.put('/api/profile', protect, upload.single('profilePhoto'), updateProfile);
 
 // Expense routes
 app.post('/api/expenses', protect, createExpense);

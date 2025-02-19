@@ -79,6 +79,7 @@ export const WalletProvider = ({ children }) => {
   const setNewMonthlyBudget = async (amount) => {
     try {
       const { data } = await api.post('/api/wallet/monthly-budget', { amount });
+      setBalance(data.currentBalance);
       setMonthlyBudget(data.monthlyBudget);
       setTransactions(data.transactions);
       return data;
@@ -92,8 +93,10 @@ export const WalletProvider = ({ children }) => {
     <WalletContext.Provider 
       value={{ 
         balance, 
+        setBalance,
         monthlyBudget,
         transactions, 
+        setTransactions,
         loading, 
         addToWallet, 
         deductFromWallet,

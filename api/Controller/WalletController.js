@@ -62,22 +62,31 @@ export const setMonthlyBudget = async (req, res) => {
     }
 
     let wallet = await Wallet.findOne({ user: req.user._id });
+    const parsedAmount = parseFloat(amount);
     
     if (!wallet) {
       wallet = await Wallet.create({
         user: req.user._id,
-        currentBalance: 0,
-        monthlyBudget: parseFloat(amount),
-        transactions: []
+        currentBalance: parsedAmount, // Set initial balance to budget amount
+        monthlyBudget: parsedAmount,
+        transactions: [{
+          type: 'credit',
+          amount: parsedAmount,
+          description: `Initial monthly budget set to ${parsedAmount}`,
+          date: new Date()
+        }]
       });
     } else {
-      wallet.monthlyBudget = parseFloat(amount);
+      // Add the difference to the current balance
+      const difference = parsedAmount - wallet.monthlyBudget;
+      wallet.currentBalance += difference;
+      wallet.monthlyBudget = parsedAmount;
       
-      // Add transaction record for budget setting
+      // Add transaction record for budget adjustment
       wallet.transactions.push({
-        type: 'credit',
-        amount: parseFloat(amount),
-        description: `Monthly budget set to ${amount}`,
+        type: difference >= 0 ? 'credit' : 'debit',
+        amount: Math.abs(difference),
+        description: `Monthly budget adjusted to ${parsedAmount}`,
         date: new Date()
       });
       

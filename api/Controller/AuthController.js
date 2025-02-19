@@ -116,41 +116,43 @@ export const getUserProfile = async (req, res) => {
 // Update user profile
 export const updateProfile = async (req, res) => {
   try {
+    const { name, email, phone, bio, occupation, address } = req.body;
+    
     const user = await User.findById(req.user._id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Update basic info
-    if (req.body.name) {
-      user.name = req.body.name;
-      // Update avatar URL with new name
-      user.profilePhoto = `https://ui-avatars.com/api/?name=${encodeURIComponent(req.body.name)}&background=random`;
-    }
-    if (req.body.phone) user.phone = req.body.phone;
-    if (req.body.bio) user.bio = req.body.bio;
-    if (req.body.occupation) user.occupation = req.body.occupation;
-    if (req.body.address) user.address = req.body.address;
-
-    // Update password if provided
-    if (req.body.password) {
-      user.password = req.body.password;
+    // Check if email is being changed and if it's already in use
+    if (email && email !== user.email) {
+      const emailExists = await User.findOne({ email });
+      if (emailExists) {
+        return res.status(400).json({ message: 'Email already in use' });
+      }
     }
 
-    const updatedUser = await user.save();
+    // Update fields if provided
+    if (name) user.name = name;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
+    if (bio) user.bio = bio;
+    if (occupation) user.occupation = occupation;
+    if (address) user.address = address;
 
-    res.json({
-      _id: updatedUser._id,
-      name: updatedUser.name,
-      email: updatedUser.email,
-      profilePhoto: updatedUser.profilePhoto,
-      phone: updatedUser.phone,
-      bio: updatedUser.bio,
-      occupation: updatedUser.occupation,
-      address: updatedUser.address,
-      token: generateToken(updatedUser._id)
-    });
+    // Handle profile photo if uploaded
+    if (req.file) {
+      user.profilePhoto = `/uploads/profiles/${req.file.filename}`;
+    }
+
+    await user.save();
+
+    // Return updated user without password
+    const updatedUser = user.toObject();
+    delete updatedUser.password;
+
+    res.json(updatedUser);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Update Profile Error:', error);
+    res.status(500).json({ message: 'Error updating profile' });
   }
 }; 

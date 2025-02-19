@@ -2,19 +2,18 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import api from '../config/axios';
 
 const Profile = () => {
   const { user, setUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    bio: '',
-    occupation: '',
-    address: '',
-    password: '',
-    confirmPassword: ''
+    name: user?.name || '',
+    email: user?.email || '',
+    phone: user?.phone || '',
+    bio: user?.bio || '',
+    occupation: user?.occupation || '',
+    address: user?.address || ''
   });
 
   useEffect(() => {
@@ -34,39 +33,24 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (formData.password && formData.password !== formData.confirmPassword) {
-      return toast.error('Passwords do not match');
-    }
-
     setLoading(true);
     try {
-      // Only send non-empty fields
-      const updateData = {};
-      Object.keys(formData).forEach(key => {
-        if (formData[key] && key !== 'confirmPassword' && key !== 'email') {
-          updateData[key] = formData[key];
-        }
-      });
-
-      const { data } = await axios.put(
-        'https://myexpenses-wf9z.onrender.com/api/profile',
-        updateData,
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-          }
-        }
-      );
-
+      const { data } = await api.put('/api/profile', formData);
       setUser(data);
       toast.success('Profile updated successfully');
     } catch (error) {
-      toast.error(error.response?.data?.message || 'Update failed');
+      console.error('Update Profile Error:', error);
+      toast.error(error.response?.data?.message || 'Failed to update profile');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   return (
@@ -96,7 +80,8 @@ const Profile = () => {
                         id="nameInput"
                         placeholder="Name"
                         value={formData.name}
-                        onChange={(e) => setFormData({...formData, name: e.target.value})}
+                        onChange={handleChange}
+                        name="name"
                       />
                       <label htmlFor="nameInput">Name</label>
                     </div>
@@ -111,6 +96,7 @@ const Profile = () => {
                         placeholder="Email"
                         value={formData.email}
                         disabled
+                        name="email"
                       />
                       <label htmlFor="emailInput">Email</label>
                     </div>
@@ -124,7 +110,8 @@ const Profile = () => {
                         id="phoneInput"
                         placeholder="Phone"
                         value={formData.phone}
-                        onChange={(e) => setFormData({...formData, phone: e.target.value})}
+                        onChange={handleChange}
+                        name="phone"
                       />
                       <label htmlFor="phoneInput">Phone</label>
                     </div>
@@ -138,7 +125,8 @@ const Profile = () => {
                         id="occupationInput"
                         placeholder="Occupation"
                         value={formData.occupation}
-                        onChange={(e) => setFormData({...formData, occupation: e.target.value})}
+                        onChange={handleChange}
+                        name="occupation"
                       />
                       <label htmlFor="occupationInput">Occupation</label>
                     </div>
@@ -151,7 +139,8 @@ const Profile = () => {
                         id="bioInput"
                         placeholder="Bio"
                         value={formData.bio}
-                        onChange={(e) => setFormData({...formData, bio: e.target.value})}
+                        onChange={handleChange}
+                        name="bio"
                         style={{ height: '100px' }}
                       />
                       <label htmlFor="bioInput">Bio</label>
@@ -166,7 +155,8 @@ const Profile = () => {
                         id="addressInput"
                         placeholder="Address"
                         value={formData.address}
-                        onChange={(e) => setFormData({...formData, address: e.target.value})}
+                        onChange={handleChange}
+                        name="address"
                       />
                       <label htmlFor="addressInput">Address</label>
                     </div>
@@ -180,7 +170,8 @@ const Profile = () => {
                         id="passwordInput"
                         placeholder="New Password"
                         value={formData.password}
-                        onChange={(e) => setFormData({...formData, password: e.target.value})}
+                        onChange={handleChange}
+                        name="password"
                       />
                       <label htmlFor="passwordInput">New Password</label>
                     </div>
@@ -194,7 +185,8 @@ const Profile = () => {
                         id="confirmPasswordInput"
                         placeholder="Confirm Password"
                         value={formData.confirmPassword}
-                        onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+                        onChange={handleChange}
+                        name="confirmPassword"
                       />
                       <label htmlFor="confirmPasswordInput">Confirm Password</label>
                     </div>
