@@ -37,15 +37,21 @@ const __dirname = path.dirname(__filename);
 
 
 // CORS configuration - Add this before other middleware
-app.use(cors({
-  // origin: ['https://farmeshexpenses.netlify.app', 'http://localhost:5173'],
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  credentials: true,
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}));
+const allowedOrigins = ['https://farmeshexpenses.netlify.app'];
+const corsOptions = {
+   origin: function(origin, callback){
+     if(!origin){
+        return callback(null, true);
+     }
+     if (allowedOrigins.indexOf(origin) === -1) {
+       var msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+       return callback(new Error(msg), false);
+     }
+     return callback(null, true);
+   },
+   optionsSuccessStatus: 200
+};
+app.use(cors(corsOptions));
 
 // Add headers middleware
 app.use((req, res, next) => {
