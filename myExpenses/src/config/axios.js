@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  baseURL: 'https://myexpenses-api.onrender.com',
+  baseURL: 'https://myexpenses-wf9z.onrender.com',
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json'
