@@ -84,3 +84,30 @@ export const WalletProvider = ({ children }) => {
       }, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+        }
+      });
+      setMonthlyBudget(response.data.monthlyBudget);
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to set monthly budget');
+    }
+  };
+
+  return (
+    <WalletContext.Provider 
+      value={{ 
+        balance, 
+        monthlyBudget,
+        transactions, 
+        loading, 
+        addToWallet, 
+        deductFromWallet,
+        setNewMonthlyBudget
+      }}
+    >
+      {children}
+    </WalletContext.Provider>
+  );
+};
+
+export const useWallet = () => useContext(WalletContext);
