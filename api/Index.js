@@ -34,9 +34,12 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+
+
 // CORS configuration - Add this before other middleware
 app.use(cors({
-  origin: ['https://farmeshexpenses.netlify.app', 'http://localhost:5173'],
+  // origin: ['https://farmeshexpenses.netlify.app', 'http://localhost:5173'],
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
@@ -57,6 +60,11 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+
+
+
+
 
 // Other middleware
 app.use(express.json());
