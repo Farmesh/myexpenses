@@ -34,15 +34,11 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-
-
 // CORS configuration - Add this before other middleware
 const allowedOrigins = ['https://farmeshexpenses.netlify.app', 'https://farmeshexpenses.netlify.app/login'];
 const corsOptions = {
-   origin: function(origin, callback){
-     if(!origin){
-        return callback(null, true);
-     }
+   origin: function(origin, callback) {
+     if (!origin) return callback(null, true);  // Allow requests with no origin (like mobile apps or curl requests)
      if (allowedOrigins.indexOf(origin) === -1) {
        var msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
        return callback(new Error(msg), false);
@@ -52,25 +48,6 @@ const corsOptions = {
    optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
-
-// Add headers middleware
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://farmeshexpenses.netlify.app');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', true);
-  
-  // Handle OPTIONS method
-  if (req.method === 'OPTIONS') {
-    return res.sendStatus(204);
-  }
-  next();
-});
-
-
-
-
-
 
 // Other middleware
 app.use(express.json());
