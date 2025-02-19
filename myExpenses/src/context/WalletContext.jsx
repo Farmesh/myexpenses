@@ -4,6 +4,8 @@ import { useAuth } from './AuthContext';
 
 const WalletContext = createContext();
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const WalletProvider = ({ children }) => {
   const [balance, setBalance] = useState(0);
   const [monthlyBudget, setMonthlyBudget] = useState(0);
@@ -23,7 +25,7 @@ export const WalletProvider = ({ children }) => {
     // Fetch user-specific wallet data
     const fetchWalletData = async () => {
       try {
-        const response = await axios.get('https://myexpenses-wf9z.onrender.com/api/wallet', {
+        const response = await axios.get(`${API_URL}/api/wallet`, {
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('userToken')}`
           }
@@ -43,7 +45,7 @@ export const WalletProvider = ({ children }) => {
 
   const addToWallet = async (amount) => {
     try {
-      const response = await axios.post('https://myexpenses-wf9z.onrender.com/api/wallet/add', {
+      const response = await axios.post(`${API_URL}/api/wallet/add`, {
         amount,
         description: 'Added funds'
       }, {
@@ -60,7 +62,7 @@ export const WalletProvider = ({ children }) => {
 
   const deductFromWallet = async (amount, description = 'Expense deduction') => {
     try {
-      const response = await axios.post('https://myexpenses-wf9z.onrender.com/api/wallet/deduct', {
+      const response = await axios.post(`${API_URL}/api/wallet/deduct`, {
         amount,
         description
       }, {
@@ -77,35 +79,8 @@ export const WalletProvider = ({ children }) => {
 
   const setNewMonthlyBudget = async (amount) => {
     try {
-      const response = await axios.post('https://myexpenses-wf9z.onrender.com/api/wallet/monthly-budget', {
+      const response = await axios.post(`${API_URL}/api/wallet/monthly-budget`, {
         amount
       }, {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-        }
-      });
-      setMonthlyBudget(response.data.monthlyBudget);
-      return response.data;
-    } catch (error) {
-      throw new Error('Failed to set monthly budget');
-    }
-  };
-
-  return (
-    <WalletContext.Provider 
-      value={{ 
-        balance, 
-        monthlyBudget,
-        transactions, 
-        loading, 
-        addToWallet, 
-        deductFromWallet,
-        setNewMonthlyBudget
-      }}
-    >
-      {children}
-    </WalletContext.Provider>
-  );
-};
-
-export const useWallet = () => useContext(WalletContext); 

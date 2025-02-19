@@ -4,6 +4,8 @@ import axios from 'axios';
 
 const AuthContext = createContext();
 
+const API_URL = import.meta.env.VITE_API_URL;
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,7 +18,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const { data } = await axios.get('https://myexpenses-wf9z.onrender.com/api/profile');
+          const { data } = await axios.get(`${API_URL}/api/profile`);
           setUser(data);
         } catch (error) {
           localStorage.removeItem('userToken');
@@ -31,7 +33,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post('https://myexpenses-wf9z.onrender.com/api/login', {
+      const { data } = await axios.post(`${API_URL}/api/login`, {
         email,
         password
       });
