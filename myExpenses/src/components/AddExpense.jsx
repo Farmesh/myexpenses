@@ -7,6 +7,7 @@ import { useWallet } from '../context/WalletContext';
 const AddExpense = () => {
   const navigate = useNavigate();
   const { balance, setBalance, setTransactions } = useWallet();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     amount: '',
     description: '',
@@ -14,41 +15,61 @@ const AddExpense = () => {
     date: new Date().toISOString().split('T')[0]
   });
 
+  const validateForm = () => {
+    const amount = parseFloat(formData.amount);
+    if (!amount || isNaN(amount) || amount <= 0) {
+      toast.error('Please enter a valid amount');
+      return false;
+    }
+
+    if (!formData.description.trim()) {
+      toast.error('Please enter a description');
+      return false;
+    }
+
+    if (amount > balance) {
+      toast.error('Insufficient balance');
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
+
     try {
-      // Validate amount
-      const amount = parseFloat(formData.amount);
-      if (!amount || amount <= 0) {
-        toast.error('Please enter a valid amount');
-        return;
-      }
-
-      // Check balance
-      if (amount > balance) {
-        toast.error('Insufficient balance');
-        return;
-      }
-
-      const { data } = await api.post('/api/expenses', formData);
+      const { data } = await api.post('/api/expenses', {
+        ...formData,
+        amount: parseFloat(formData.amount),
+        description: formData.description.trim()
+      });
       
-      // Update wallet context
       setBalance(data.walletBalance);
       setTransactions(data.transactions);
       
       toast.success('Expense added successfully');
-      navigate('/dashboard');
+      navigate('/expenses');
     } catch (error) {
       console.error('Add Expense Error:', error);
       toast.error(error.response?.data?.message || 'Failed to add expense');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   return (
@@ -66,6 +87,8 @@ const AddExpense = () => {
                 value={formData.amount}
                 onChange={handleChange}
                 required
+                min="0.01"
+                step="0.01"
               />
             </div>
             <div className="mb-3">
@@ -106,8 +129,19 @@ const AddExpense = () => {
                 required
               />
             </div>
-            <button type="submit" className="btn btn-primary w-100">
-              Add Expense
+            <button 
+              type="submit" 
+              className="btn btn-primary w-100"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Adding...
+                </>
+              ) : (
+                'Add Expense'
+              )}
             </button>
           </form>
         </div>

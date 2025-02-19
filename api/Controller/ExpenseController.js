@@ -7,89 +7,72 @@ export const createExpense = async (req, res) => {
   try {
     const { amount, description, category, date } = req.body;
 
-    // Validate input
-    if (!amount || amount <= 0) {
+    // Enhanced validation
+    if (!amount || isNaN(amount) || amount <= 0) {
       return res.status(400).json({ message: 'Please enter a valid amount' });
     }
 
-    // Find user's wallet
+    if (!description || description.trim().length === 0) {
+      return res.status(400).json({ message: 'Description is required' });
+    }
+
+    const parsedAmount = parseFloat(amount);
+
+    // Find and validate wallet
     const wallet = await Wallet.findOne({ user: req.user._id });
     if (!wallet) {
       return res.status(404).json({ message: 'Wallet not found' });
     }
 
-    // Check if sufficient balance
-    if (wallet.currentBalance < amount) {
+    // Check balance
+    if (wallet.currentBalance < parsedAmount) {
       return res.status(400).json({ message: 'Insufficient balance' });
     }
 
-    // Create expense
+    // Create expense with validated data
     const expense = await Expense.create({
       user: req.user._id,
-      amount: parseFloat(amount),
-      description,
+      amount: parsedAmount,
+      description: description.trim(),
       category,
       date: date || new Date()
     });
 
-    // Update wallet
-    wallet.currentBalance -= parseFloat(amount);
+    // Update wallet balance and add transaction
+    wallet.currentBalance -= parsedAmount;
     wallet.transactions.push({
       type: 'debit',
-      amount: parseFloat(amount),
-      description: description || 'Expense',
+      amount: parsedAmount,
+      description: `Expense: ${description.trim()}`,
       date: new Date()
     });
 
     await wallet.save();
 
+    // Return updated data
     res.status(201).json({
       expense,
       walletBalance: wallet.currentBalance,
       transactions: wallet.transactions
     });
+
   } catch (error) {
     console.error('Create Expense Error:', error);
     res.status(500).json({ 
-      message: 'Error creating expense',
-      error: error.message 
+      message: error.message || 'Error creating expense'
     });
   }
 };
 
-// Get expenses
+// Get all expenses
 export const getExpenses = async (req, res) => {
   try {
-    const { filter, sort } = req.query;
-    let query = { user: req.user._id };
-    
-    // Apply date filters
-    if (filter === 'today') {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      query.date = { $gte: today };
-    } else if (filter === 'week') {
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      query.date = { $gte: weekAgo };
-    } else if (filter === 'month') {
-      const monthAgo = new Date();
-      monthAgo.setMonth(monthAgo.getMonth() - 1);
-      query.date = { $gte: monthAgo };
-    }
-
-    // Apply sorting
-    let sortOption = { date: -1 }; // default sort by date
-    if (sort === 'amount') {
-      sortOption = { amount: -1 };
-    } else if (sort === 'category') {
-      sortOption = { category: 1 };
-    }
-
-    const expenses = await Expense.find(query).sort(sortOption);
+    const expenses = await Expense.find({ user: req.user._id })
+      .sort({ date: -1 });
     res.json(expenses);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Get Expenses Error:', error);
+    res.status(500).json({ message: 'Error fetching expenses' });
   }
 };
 

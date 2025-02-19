@@ -1,30 +1,35 @@
 import mongoose from 'mongoose';
 
 const ExpenseSchema = new mongoose.Schema({
-  description: {
-    type: String,
-    required: true
-  },
-  amount: {
-    type: Number,
-    required: true
-  },
-  category: {
-    type: String,
-    required: true
-  },
-  date: {
-    type: Date,
-    default: Date.now
-  },
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  amount: {
+    type: Number,
+    required: true,
+    validate: {
+      validator: Number.isFinite,
+      message: '{VALUE} is not a valid amount'
+    }
+  },
+  description: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  category: {
+    type: String,
+    required: true,
+    enum: ['Food', 'Transportation', 'Entertainment', 'Shopping', 'Bills', 'Other']
+  },
+  date: {
+    type: Date,
+    default: Date.now
   }
 }, {
   timestamps: true
 });
 
-const Expense = mongoose.model('Expense', ExpenseSchema);
-export default Expense;
+export default mongoose.model('Expense', ExpenseSchema);

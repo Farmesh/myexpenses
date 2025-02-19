@@ -1,6 +1,7 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import api from '../config/axios';
 import { useAuth } from './AuthContext';
+import { toast } from 'react-toastify';
 
 const WalletContext = createContext();
 
@@ -10,6 +11,18 @@ export const WalletProvider = ({ children }) => {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
+
+  const updateWalletState = (data) => {
+    if (data.currentBalance !== undefined) {
+      setBalance(data.currentBalance);
+    }
+    if (data.monthlyBudget !== undefined) {
+      setMonthlyBudget(data.monthlyBudget);
+    }
+    if (data.transactions) {
+      setTransactions(data.transactions);
+    }
+  };
 
   useEffect(() => {
     if (!user) {
@@ -23,11 +36,10 @@ export const WalletProvider = ({ children }) => {
     const fetchWalletData = async () => {
       try {
         const { data } = await api.get('/api/wallet');
-        setBalance(data.currentBalance);
-        setMonthlyBudget(data.monthlyBudget);
-        setTransactions(data.transactions);
+        updateWalletState(data);
       } catch (error) {
         console.error('Failed to fetch wallet data:', error);
+        toast.error('Failed to fetch wallet data');
       } finally {
         setLoading(false);
       }
@@ -95,9 +107,11 @@ export const WalletProvider = ({ children }) => {
         balance, 
         setBalance,
         monthlyBudget,
+        setMonthlyBudget,
         transactions, 
         setTransactions,
-        loading, 
+        updateWalletState,
+        loading,
         addToWallet, 
         deductFromWallet,
         setNewMonthlyBudget
