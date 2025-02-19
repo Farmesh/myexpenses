@@ -1,6 +1,7 @@
 import { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../config/axios';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
@@ -27,10 +28,18 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem('userToken');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+  }, []);
+
   const login = async (email, password) => {
     try {
       const { data } = await api.post('/api/login', { email, password });
       localStorage.setItem('userToken', data.token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
       setUser(data);
       return { success: true };
     } catch (error) {

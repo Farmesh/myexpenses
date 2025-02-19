@@ -11,23 +11,26 @@ export const WalletProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
 
-  // Reset wallet data when user changes or logs out
   useEffect(() => {
     if (!user) {
       setBalance(0);
       setMonthlyBudget(0);
       setTransactions([]);
+      setLoading(false);
       return;
     }
 
-    // Fetch user-specific wallet data
     const fetchWalletData = async () => {
       try {
+        const token = localStorage.getItem('userToken');
         const response = await axios.get('https://myexpenses-wf9z.onrender.com/api/wallet', {
           headers: {
-            'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-          }
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
         });
+        
         setBalance(response.data.currentBalance);
         setMonthlyBudget(response.data.monthlyBudget);
         setTransactions(response.data.transactions);
@@ -39,18 +42,24 @@ export const WalletProvider = ({ children }) => {
     };
 
     fetchWalletData();
-  }, [user]); // Re-fetch when user changes
+  }, [user]);
 
   const addToWallet = async (amount) => {
     try {
-      const response = await axios.post('https://myexpenses-wf9z.onrender.com/api/wallet/add', {
-        amount,
-        description: 'Added funds'
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+      const token = localStorage.getItem('userToken');
+      const response = await axios.post('https://myexpenses-wf9z.onrender.com/api/wallet/add', 
+        {
+          amount,
+          description: 'Added funds'
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          withCredentials: true
         }
-      });
+      );
       setBalance(response.data.currentBalance);
       setTransactions(response.data.transactions);
     } catch (error) {
