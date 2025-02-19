@@ -16,7 +16,7 @@ export const AuthProvider = ({ children }) => {
       if (token) {
         try {
           axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-          const { data } = await axios.get('http://localhost:3001/api/profile');
+          const { data } = await axios.get('https://myexpenses-wf9z.onrender.com/api/profile');
           setUser(data);
         } catch (error) {
           localStorage.removeItem('userToken');
@@ -31,7 +31,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post('http://localhost:3001/api/login', {
+      const { data } = await axios.post('https://myexpenses-wf9z.onrender.com/api/login', {
         email,
         password
       });

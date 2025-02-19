@@ -42,7 +42,7 @@ const UserSchema = new mongoose.Schema({
 // Add a virtual for the full profile photo URL
 UserSchema.virtual('profilePhotoUrl').get(function() {
   if (!this.profilePhoto) return null;
-  return `http://localhost:3001${this.profilePhoto}`;
+  return `https://myexpenses-wf9z.onrender.com${this.profilePhoto}`;
 });
 
 // Ensure virtuals are included in JSON

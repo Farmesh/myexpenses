@@ -17,7 +17,7 @@ const MonthlyBudget = () => {
     e.preventDefault();
     try {
       const formattedCategories = categories.filter(cat => cat.limit);
-      await axios.post('http://localhost:3001/wallet/monthly-budget', {
+      await axios.post('https://myexpenses-wf9z.onrender.com/wallet/monthly-budget', {
         amount: parseFloat(budget),
         categories: formattedCategories
       });

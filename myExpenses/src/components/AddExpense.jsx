@@ -23,7 +23,7 @@ const AddExpense = () => {
 
     setLoading(true);
     try {
-      const { data } = await axios.post('http://localhost:3001/api/expenses', expense);
+      const { data } = await axios.post('https://myexpenses-wf9z.onrender.com/api/expenses', expense);
       
       await deductFromWallet(data.amount, `Expense: ${data.description}`);
       

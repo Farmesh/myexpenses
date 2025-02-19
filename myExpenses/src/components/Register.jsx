@@ -19,7 +19,7 @@ const Register = () => {
     }
 
     try {
-      const { data } = await axios.post('http://localhost:3001/api/register', {
+      const { data } = await axios.post('https://myexpenses-wf9z.onrender.com/api/register', {
         name: formData.name,
         email: formData.email,
         password: formData.password

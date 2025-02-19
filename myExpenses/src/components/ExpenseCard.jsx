@@ -18,7 +18,7 @@ const ExpenseCard = ({ expense, onDelete }) => {
         return;
       }
 
-      await axios.put(`http://localhost:3001/updateExpense/${expense._id}`, editedExpense);
+      await axios.put(`https://myexpenses-wf9z.onrender.com/updateExpense/${expense._id}`, editedExpense);
       
       if (amountDifference > 0) {
         deductFromWallet(amountDifference);

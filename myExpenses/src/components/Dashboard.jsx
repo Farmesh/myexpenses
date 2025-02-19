@@ -21,7 +21,7 @@ const Dashboard = () => {
 
   const fetchExpenses = async () => {
     try {
-      const { data } = await axios.get(`http://localhost:3001/api/expenses?filter=${filter}&sort=${sortBy}`);
+      const { data } = await axios.get(`https://myexpenses-wf9z.onrender.com/api/expenses?filter=${filter}&sort=${sortBy}`);
       setExpenses(data);
     } catch (error) {
       toast.error('Failed to fetch expenses');
@@ -32,7 +32,7 @@ const Dashboard = () => {
 
   const handleDelete = async (id) => {
     try {
-      const { data } = await axios.delete(`http://localhost:3001/api/expenses/${id}`);
+      const { data } = await axios.delete(`https://myexpenses-wf9z.onrender.com/api/expenses/${id}`);
       setNewMonthlyBudget(data.amount);
       toast.success('Expense deleted successfully');
       fetchExpenses();

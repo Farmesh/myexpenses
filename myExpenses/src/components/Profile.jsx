@@ -50,7 +50,7 @@ const Profile = () => {
       });
 
       const { data } = await axios.put(
-        'http://localhost:3001/api/profile',
+        'https://myexpenses-wf9z.onrender.com/api/profile',
         updateData,
         {
           headers: {
