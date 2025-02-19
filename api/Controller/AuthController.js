@@ -79,6 +79,10 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
+    // Set CORS headers explicitly for this route
+    res.header('Access-Control-Allow-Origin', 'https://farmeshexpenses.netlify.app');
+    res.header('Access-Control-Allow-Credentials', 'true');
+
     // Include all necessary user data in response
     res.json({
       _id: user._id,

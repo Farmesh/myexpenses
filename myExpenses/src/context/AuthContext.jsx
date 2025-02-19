@@ -33,10 +33,18 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const { data } = await axios.post(`${API_URL}/api/login`, {
-        email,
-        password
-      });
+      const { data } = await axios.post(`${API_URL}/api/login`, 
+        {
+          email,
+          password
+        },
+        {
+          withCredentials: true,
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
       
       localStorage.setItem('userToken', data.token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
