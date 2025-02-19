@@ -14,6 +14,36 @@ import { initializeWallet, getWalletDetails, addFunds, deductFunds, getTransacti
 import { protect } from './Middleware/authMiddleware.js';
 import { exportExpenses } from './Controller/ExportController.js';
 
+// Initialize app
+dotenv.config();
+const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// CORS Configuration
+app.use((req, res, next) => {
+  const allowedOrigins = ['https://farmeshexpenses.netlify.app', 'http://localhost:5173'];
+  const origin = req.headers.origin;
+  
+  if (allowedOrigins.includes(origin)) {
+    res.header('Access-Control-Allow-Origin', origin);
+  }
+  
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
+
+// Middleware
+app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Configure multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -23,40 +53,8 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname);
   }
 });
+
 const upload = multer({ storage: storage });
-
-// Initialize app
-dotenv.config();
-const app = express();
-
-// ES Module fix for __dirname
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// CORS Configuration - Must be before any routes
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'https://farmeshexpenses.netlify.app');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  
-  // Handle preflight
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-  next();
-});
-
-app.use(cors({
-  origin: 'https://farmeshexpenses.netlify.app',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-// Other middleware
-app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Create uploads directory if it doesn't exist
 if (!fs.existsSync('./uploads')) {
@@ -64,19 +62,17 @@ if (!fs.existsSync('./uploads')) {
   fs.mkdirSync('./uploads/profiles');
 }
 
-// Routes
+// Auth routes
 app.post('/api/register', register);
 app.post('/api/login', login);
 app.get('/api/profile', protect, getUserProfile);
-app.put('/api/profile', protect, upload.single('profilePhoto'), updateProfile);
+app.put('/api/profile', protect, updateProfile);
 
 // Expense routes
 app.post('/api/expenses', protect, createExpense);
 app.get('/api/expenses', protect, getExpenses);
 app.delete('/api/expenses/:id', protect, deleteExpense);
 app.put('/api/expenses/:id', protect, updateExpense);
-
-// Export route
 app.get('/api/expenses/export', protect, exportExpenses);
 
 // Wallet routes
