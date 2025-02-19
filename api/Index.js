@@ -37,7 +37,7 @@ const __dirname = path.dirname(__filename);
 
 
 // CORS configuration - Add this before other middleware
-const allowedOrigins = ['https://farmeshexpenses.netlify.app'];
+const allowedOrigins = ['https://farmeshexpenses.netlify.app', 'https://farmeshexpenses.netlify.app/login'];
 const corsOptions = {
    origin: function(origin, callback){
      if(!origin){
