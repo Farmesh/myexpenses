@@ -23,7 +23,6 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname);
   }
 });
-
 const upload = multer({ storage: storage });
 
 // Initialize app
@@ -34,20 +33,32 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// CORS configuration - Add this before other middleware
-const allowedOrigins = ['https://farmeshexpenses.netlify.app', 'https://farmeshexpenses.netlify.app/login'];
-const corsOptions = {
-   origin: function(origin, callback) {
-     if (!origin) return callback(null, true);  // Allow requests with no origin (like mobile apps or curl requests)
-     if (allowedOrigins.indexOf(origin) === -1) {
-       var msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
-       return callback(new Error(msg), false);
-     }
-     return callback(null, true);
-   },
-   optionsSuccessStatus: 200
-};
-app.use(cors(corsOptions));
+// CORS Middleware Fix
+const allowedOrigins = ['https://farmeshexpenses.netlify.app'];
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error(`Blocked by CORS: ${origin}`));
+    }
+  },
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
+
+// Manually Add CORS Headers
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://farmeshexpenses.netlify.app');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
 
 // Other middleware
 app.use(express.json());
