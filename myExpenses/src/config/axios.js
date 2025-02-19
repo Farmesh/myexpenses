@@ -1,15 +1,12 @@
 import axios from 'axios';
 
-const instance = axios.create({
+const api = axios.create({
   baseURL: 'https://myexpenses-wf9z.onrender.com',
-  withCredentials: true,
-  headers: {
-    'Content-Type': 'application/json'
-  }
+  withCredentials: true
 });
 
 // Request interceptor
-instance.interceptors.request.use(
+api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('userToken');
     if (token) {
@@ -17,13 +14,11 @@ instance.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 // Response interceptor
-instance.interceptors.response.use(
+api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
@@ -34,4 +29,4 @@ instance.interceptors.response.use(
   }
 );
 
-export default instance; 
+export default api; 

@@ -27,16 +27,28 @@ export const initializeWallet = async (req, res) => {
   }
 };
 
-// Get wallet balance and transactions
+// Get wallet details
 export const getWalletDetails = async (req, res) => {
   try {
-    const wallet = await Wallet.findOne({ user: req.user._id });
+    let wallet = await Wallet.findOne({ user: req.user._id });
+    
     if (!wallet) {
-      return res.status(404).json({ message: 'Wallet not found' });
+      wallet = await Wallet.create({
+        user: req.user._id,
+        currentBalance: 0,
+        monthlyBudget: 0,
+        transactions: []
+      });
     }
-    res.status(200).json(wallet);
+
+    res.json({
+      currentBalance: wallet.currentBalance,
+      monthlyBudget: wallet.monthlyBudget,
+      transactions: wallet.transactions
+    });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Wallet Error:', error);
+    res.status(500).json({ message: 'Error fetching wallet details' });
   }
 };
 

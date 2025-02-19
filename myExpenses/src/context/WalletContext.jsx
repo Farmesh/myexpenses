@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useEffect } from 'react';
-import axios from 'axios';
+import api from '../config/axios';
 import { useAuth } from './AuthContext';
 
 const WalletContext = createContext();
@@ -22,18 +22,10 @@ export const WalletProvider = ({ children }) => {
 
     const fetchWalletData = async () => {
       try {
-        const token = localStorage.getItem('userToken');
-        const response = await axios.get('https://myexpenses-wf9z.onrender.com/api/wallet', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          withCredentials: true
-        });
-        
-        setBalance(response.data.currentBalance);
-        setMonthlyBudget(response.data.monthlyBudget);
-        setTransactions(response.data.transactions);
+        const { data } = await api.get('/api/wallet');
+        setBalance(data.currentBalance);
+        setMonthlyBudget(data.monthlyBudget);
+        setTransactions(data.transactions);
       } catch (error) {
         console.error('Failed to fetch wallet data:', error);
       } finally {
@@ -47,7 +39,7 @@ export const WalletProvider = ({ children }) => {
   const addToWallet = async (amount) => {
     try {
       const token = localStorage.getItem('userToken');
-      const response = await axios.post('https://myexpenses-wf9z.onrender.com/api/wallet/add', 
+      const response = await api.post('/api/wallet/add', 
         {
           amount,
           description: 'Added funds'
@@ -69,7 +61,7 @@ export const WalletProvider = ({ children }) => {
 
   const deductFromWallet = async (amount, description = 'Expense deduction') => {
     try {
-      const response = await axios.post('https://myexpenses-wf9z.onrender.com/api/wallet/deduct', {
+      const response = await api.post('/api/wallet/deduct', {
         amount,
         description
       }, {
@@ -86,7 +78,7 @@ export const WalletProvider = ({ children }) => {
 
   const setNewMonthlyBudget = async (amount) => {
     try {
-      const response = await axios.post('https://myexpenses-wf9z.onrender.com/api/wallet/monthly-budget', {
+      const response = await api.post('/api/wallet/monthly-budget', {
         amount
       }, {
         headers: {

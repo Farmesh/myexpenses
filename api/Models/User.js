@@ -17,7 +17,9 @@ const UserSchema = new mongoose.Schema({
   },
   profilePhoto: {
     type: String,
-    default: 'https://ui-avatars.com/api/?name=User&background=random'
+    default: function() {
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(this.name || 'User')}&background=random`;
+    }
   },
   phone: {
     type: String,

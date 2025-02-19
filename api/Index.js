@@ -76,11 +76,9 @@ app.put('/api/expenses/:id', protect, updateExpense);
 app.get('/api/expenses/export', protect, exportExpenses);
 
 // Wallet routes
-app.get('/api/wallet/initialize', protect, initializeWallet);
 app.get('/api/wallet', protect, getWalletDetails);
 app.post('/api/wallet/add', protect, addFunds);
 app.post('/api/wallet/deduct', protect, deductFunds);
-app.get('/api/wallet/transactions', protect, getTransactionHistory);
 app.post('/api/wallet/monthly-budget', protect, setMonthlyBudget);
 app.get('/api/wallet/monthly-stats', protect, getMonthlyStats);
 
