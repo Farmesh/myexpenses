@@ -37,7 +37,9 @@ const __dirname = path.dirname(__filename);
 // Middleware
 app.use(cors({
   origin: ['https://farmeshexpenses.netlify.app', 'http://localhost:5173'],
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
