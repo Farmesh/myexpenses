@@ -78,16 +78,12 @@ export const WalletProvider = ({ children }) => {
 
   const setNewMonthlyBudget = async (amount) => {
     try {
-      const response = await api.post('/api/wallet/monthly-budget', {
-        amount
-      }, {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('userToken')}`
-        }
-      });
-      setMonthlyBudget(response.data.monthlyBudget);
-      return response.data;
+      const { data } = await api.post('/api/wallet/monthly-budget', { amount });
+      setMonthlyBudget(data.monthlyBudget);
+      setTransactions(data.transactions);
+      return data;
     } catch (error) {
+      console.error('Failed to set monthly budget:', error);
       throw new Error('Failed to set monthly budget');
     }
   };

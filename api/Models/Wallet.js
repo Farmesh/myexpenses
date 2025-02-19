@@ -8,11 +8,19 @@ const WalletSchema = new mongoose.Schema({
   },
   currentBalance: {
     type: Number,
-    default: 0
+    default: 0,
+    validate: {
+      validator: Number.isFinite,
+      message: '{VALUE} is not a valid amount'
+    }
   },
   monthlyBudget: {
     type: Number,
-    default: 0
+    default: 0,
+    validate: {
+      validator: Number.isFinite,
+      message: '{VALUE} is not a valid amount'
+    }
   },
   transactions: [{
     type: {
@@ -22,7 +30,11 @@ const WalletSchema = new mongoose.Schema({
     },
     amount: {
       type: Number,
-      required: true
+      required: true,
+      validate: {
+        validator: Number.isFinite,
+        message: '{VALUE} is not a valid amount'
+      }
     },
     description: String,
     date: {

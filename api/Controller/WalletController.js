@@ -56,45 +56,42 @@ export const getWalletDetails = async (req, res) => {
 export const setMonthlyBudget = async (req, res) => {
   try {
     const { amount } = req.body;
-    const currentDate = moment();
-    const currentMonth = currentDate.format('MMMM YYYY');
+    
+    if (!amount || isNaN(amount)) {
+      return res.status(400).json({ message: 'Invalid amount' });
+    }
 
     let wallet = await Wallet.findOne({ user: req.user._id });
+    
     if (!wallet) {
-      return res.status(404).json({ message: 'Wallet not found' });
-    }
-
-    // Update monthly budget
-    wallet.monthlyBudget = amount;
-
-    // Update or add monthly expense record
-    const monthIndex = wallet.monthlyExpenses.findIndex(
-      exp => exp.month === currentMonth
-    );
-
-    if (monthIndex === -1) {
-      wallet.monthlyExpenses.push({
-        month: currentMonth,
-        year: currentDate.year(),
-        budget: amount,
-        spent: 0
+      wallet = await Wallet.create({
+        user: req.user._id,
+        currentBalance: 0,
+        monthlyBudget: parseFloat(amount),
+        transactions: []
       });
     } else {
-      wallet.monthlyExpenses[monthIndex].budget = amount;
+      wallet.monthlyBudget = parseFloat(amount);
+      
+      // Add transaction record for budget setting
+      wallet.transactions.push({
+        type: 'credit',
+        amount: parseFloat(amount),
+        description: `Monthly budget set to ${amount}`,
+        date: new Date()
+      });
+      
+      await wallet.save();
     }
 
-    // Add transaction record
-    wallet.transactions.push({
-      type: 'BUDGET_SET',
-      amount,
-      description: `Monthly budget set for ${currentMonth}`,
-      date: new Date()
+    res.json({
+      currentBalance: wallet.currentBalance,
+      monthlyBudget: wallet.monthlyBudget,
+      transactions: wallet.transactions
     });
-
-    await wallet.save();
-    res.json(wallet);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Monthly Budget Error:', error);
+    res.status(500).json({ message: 'Error setting monthly budget' });
   }
 };
 

@@ -43,8 +43,12 @@ const UserSchema = new mongoose.Schema({
 
 // Add a virtual for the full profile photo URL
 UserSchema.virtual('profilePhotoUrl').get(function() {
-  if (!this.profilePhoto) return null;
-  return `https://myexpenses-wf9z.onrender.com${this.profilePhoto}`;
+  if (!this.profilePhoto) {
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(this.name || 'User')}&background=random`;
+  }
+  return this.profilePhoto.startsWith('http') 
+    ? this.profilePhoto 
+    : `https://myexpenses-wf9z.onrender.com${this.profilePhoto}`;
 });
 
 // Ensure virtuals are included in JSON

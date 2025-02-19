@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { setNewMonthlyBudget } from '../context/WalletContext';
 
 const MonthlyBudget = () => {
   const [budget, setBudget] = useState('');
@@ -16,14 +17,17 @@ const MonthlyBudget = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const formattedCategories = categories.filter(cat => cat.limit);
-      await axios.post('https://myexpenses-wf9z.onrender.com/wallet/monthly-budget', {
-        amount: parseFloat(budget),
-        categories: formattedCategories
-      });
-      toast.success('Monthly budget set successfully!');
+      if (!budget || isNaN(budget) || parseFloat(budget) <= 0) {
+        toast.error('Please enter a valid budget amount');
+        return;
+      }
+
+      await setNewMonthlyBudget(parseFloat(budget));
+      toast.success('Monthly budget set successfully');
+      setBudget('');
     } catch (error) {
-      toast.error('Failed to set monthly budget');
+      console.error('Budget setting error:', error);
+      toast.error(error.message || 'Failed to set monthly budget');
     }
   };
 
