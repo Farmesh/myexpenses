@@ -33,18 +33,23 @@ const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// CORS Middleware Fix
-const allowedOrigins = ['https://farmeshexpenses.netlify.app'];
+// CORS Middleware Configuration
+const allowedOrigins = [
+  'https://farmeshexpenses.netlify.app',
+  'http://localhost:5173'
+];
+
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error(`Blocked by CORS: ${origin}`));
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
-  optionsSuccessStatus: 200
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
 // Manually Add CORS Headers
@@ -94,12 +99,13 @@ app.get('/api/wallet/transactions', protect, getTransactionHistory);
 app.post('/api/wallet/monthly-budget', protect, setMonthlyBudget);
 app.get('/api/wallet/monthly-stats', protect, getMonthlyStats);
 
-// Error handling
+// Global error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({
-    message: err.message,
-    stack: process.env.NODE_ENV === 'production' ? null : err.stack
+    message: process.env.NODE_ENV === 'production' 
+      ? 'Internal Server Error' 
+      : err.message
   });
 });
 

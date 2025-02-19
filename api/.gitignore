@@ -6,6 +6,8 @@ package-lock.json
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
 
 # Logs
 logs
@@ -25,6 +27,7 @@ uploads/
 uploads/*
 !uploads/profiles/
 !uploads/profiles/default-avatar.png
+!uploads/.gitkeep
 
 # IDE - VSCode
 .vscode/*

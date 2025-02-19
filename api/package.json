@@ -1,11 +1,12 @@
 {
-  "name": "api",
+  "name": "expense-tracker-api",
   "version": "1.0.0",
   "type": "module",
   "main": "Index.js",
   "scripts": {
     "start": "node Index.js",
-    "dev": "nodemon Index.js"
+    "dev": "nodemon Index.js",
+    "build": "npm install"
   },
   "author": "",
   "license": "ISC",
@@ -26,5 +27,8 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

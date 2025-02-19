@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 package-lock.json
+.pnp/
+.pnp.js
 
 # Production
 dist
