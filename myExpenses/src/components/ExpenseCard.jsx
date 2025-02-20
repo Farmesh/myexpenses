@@ -20,14 +20,13 @@ const ExpenseCard = ({ expense, onDelete, onUpdate, t }) => {
         toast.error('Insufficient balance for this update');
         return;
       }
-
+    
+      toast.success('Expense updated successfully');
       const { data } = await api.put(`/api/expenses/${expense._id}`, editedExpense);
-      
+      window.location.reload();
       setBalance(data.walletBalance);
       setTransactions(data.transactions);
       onUpdate(data.expense);
-      setIsEditing(false);
-      toast.success('Expense updated successfully');
     } catch (error) {
       toast.error(error.response?.data?.message || 'Failed to update expense');
     } finally {
