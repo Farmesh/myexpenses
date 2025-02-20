@@ -1,86 +1,177 @@
 import { useState } from 'react';
-import axios from 'axios';
 import { toast } from 'react-toastify';
+import api from '../config/axios';
 import { useWallet } from '../context/WalletContext';
+import { motion } from 'framer-motion';
+import { withTranslation } from '../hoc/withTranslation';
 
-const ExpenseCard = ({ expense, onDelete }) => {
+const ExpenseCard = ({ expense, onDelete, onUpdate, t }) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [editedExpense, setEditedExpense] = useState(expense);
-  const { balance, addToWallet, deductFromWallet } = useWallet();
-  const [isDeleting, setIsDeleting] = useState(false);
+  const [editedExpense, setEditedExpense] = useState({ ...expense });
+  const { balance, setBalance, setTransactions } = useWallet();
+  const [loading, setLoading] = useState(false);
 
   const handleEdit = async () => {
     try {
+      setLoading(true);
       const amountDifference = editedExpense.amount - expense.amount;
       
       if (amountDifference > balance) {
-        toast.error('Insufficient balance for this update!');
+        toast.error('Insufficient balance for this update');
         return;
       }
 
-      await axios.put(`https://myexpenses-wf9z.onrender.com/updateExpense/${expense._id}`, editedExpense);
+      const { data } = await api.put(`/api/expenses/${expense._id}`, editedExpense);
       
-      if (amountDifference > 0) {
-        deductFromWallet(amountDifference);
-      } else if (amountDifference < 0) {
-        addToWallet(Math.abs(amountDifference));
-      }
-
-      toast.success('Expense updated successfully');
+      setBalance(data.walletBalance);
+      setTransactions(data.transactions);
+      onUpdate(data.expense);
       setIsEditing(false);
-      window.location.reload();
+      toast.success('Expense updated successfully');
     } catch (error) {
-      toast.error('Failed to update expense');
+      toast.error(error.response?.data?.message || 'Failed to update expense');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleDelete = async () => {
-    if (window.confirm('Are you sure you want to delete this expense?')) {
-      setIsDeleting(true);
-      try {
-        await onDelete(expense._id);
-      } catch (error) {
-        console.error('Delete error:', error);
-      } finally {
-        setIsDeleting(false);
+  const cardVariants = {
+    hover: {
+      y: -5,
+      transition: {
+        duration: 0.2
       }
     }
   };
+
+  if (isEditing) {
+    return (
+      <motion.div
+        className="card h-100"
+        variants={cardVariants}
+        whileHover="hover"
+        layoutId={expense._id}
+      >
+        <div className="card-body">
+          <div className="mb-3">
+            <label className="form-label">Description</label>
+            <input
+              type="text"
+              className="form-control"
+              value={editedExpense.description}
+              onChange={(e) => setEditedExpense({ ...editedExpense, description: e.target.value })}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Amount</label>
+            <input
+              type="number"
+              className="form-control"
+              value={editedExpense.amount}
+              onChange={(e) => setEditedExpense({ ...editedExpense, amount: parseFloat(e.target.value) })}
+            />
+          </div>
+          <div className="mb-3">
+            <label className="form-label">Category</label>
+            <select
+              className="form-select"
+              value={editedExpense.category}
+              onChange={(e) => setEditedExpense({ ...editedExpense, category: e.target.value })}
+            >
+              <option value="Food">Food</option>
+              <option value="Transportation">Transportation</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Shopping">Shopping</option>
+              <option value="Bills">Bills</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div className="d-flex gap-2">
+            <button
+              onClick={handleEdit}
+              className="btn btn-primary flex-grow-1"
+              disabled={loading}
+            >
+              {loading ? 'Saving...' : 'Save'}
+            </button>
+            <button
+              onClick={() => setIsEditing(false)}
+              className="btn btn-secondary"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
-    <div className="card h-100">
+    <motion.div
+      className="card h-100"
+      variants={cardVariants}
+      whileHover="hover"
+      layoutId={expense._id}
+    >
       <div className="card-body">
-        <div className="d-flex flex-column flex-sm-row justify-content-between align-items-start mb-2">
-          <h5 className="card-title mb-2 mb-sm-0">{expense.description}</h5>
-          <span className="badge bg-primary">{expense.category}</span>
-        </div>
-        <h3 className="text-primary mb-3">₹{expense.amount}</h3>
-        <p className="text-light mb-3">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="d-flex justify-content-between align-items-start mb-2"
+        >
+          <h5 className="card-title">{expense.description}</h5>
+          <motion.span
+            className="badge bg-primary"
+            whileHover={{ scale: 1.1 }}
+          >
+            {t(expense.category.toLowerCase())}
+          </motion.span>
+        </motion.div>
+        
+        <motion.h3 
+          className="text-primary mb-3"
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+        >
+          ₹{expense.amount.toFixed(2)}
+        </motion.h3>
+        
+        <p className="text-muted mb-3">
           <i className="far fa-calendar me-2"></i>
           {new Date(expense.date).toLocaleDateString()}
         </p>
-        <div className="d-flex gap-2">
-          <button
+        
+        <motion.div 
+          className="d-flex gap-2"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => setIsEditing(true)}
             className="btn btn-outline-primary flex-grow-1"
           >
-            <i className="fas fa-edit me-2 d-none d-sm-inline"></i>Edit
-          </button>
-          <button
-            onClick={handleDelete}
+            <i className="fas fa-edit me-2"></i>{t('edit')}
+          </motion.button>
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onDelete(expense._id)}
             className="btn btn-danger"
-            disabled={isDeleting}
+            disabled={loading}
           >
-            {isDeleting ? (
+            {loading ? (
               <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             ) : (
               <i className="fas fa-trash"></i>
             )}
-          </button>
-        </div>
+          </motion.button>
+        </motion.div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 
-export default ExpenseCard; 
+export default withTranslation(ExpenseCard); 

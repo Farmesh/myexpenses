@@ -2,91 +2,152 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
 import { useAuth } from '../context/AuthContext';
+import { useThemeLanguage } from '../context/ThemeLanguageContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Navbar = () => {
   const { balance, monthlyBudget } = useWallet();
   const { user, logout } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { theme, toggleTheme, language, changeLanguage, translate } = useThemeLanguage();
 
   const handleLogout = () => {
-    if (window.confirm('Are you sure you want to logout?')) {
+    if (window.confirm(translate('confirmLogout'))) {
       logout();
     }
   };
 
   return (
     <>
-      <nav className="navbar navbar-expand-lg bg-dark navbar-dark">
+      <motion.nav
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        className="navbar navbar-expand-lg shadow-sm"
+      >
         <div className="container">
-          <Link to="/" className="navbar-brand d-flex align-items-center">
-            <i className="fas fa-wallet me-2"></i>
-            ExpenseTracker
+          <Link to="/" className="navbar-brand">
+            <i className="fas fa-wallet me-2 text-primary"></i>
+            <span>{translate('expenseTracker')}</span>
           </Link>
-          
-          <button
-            className="navbar-toggler"
-            type="button"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            <span className="navbar-toggler-icon"></span>
-          </button>
 
           {user && (
-            <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`}>
-              <div className="d-flex flex-column flex-lg-row align-items-lg-center ms-auto">
-                <div className="text-light me-lg-4 mb-2 mb-lg-0">
-                  <small className="d-block text-light">Balance</small>
-                  <span className="fw-bold">
-                  ₹{balance.toFixed(2)}</span>
-                </div>
-                <div className="text-light me-lg-4 mb-2 mb-lg-0">
-                  <small className="d-block text-light">Monthly Budget</small>
-                  <span className="fw-bold">₹{monthlyBudget.toFixed(2)}</span>
-                </div>
-                <Link to="/" className="btn btn-outline-light me-lg-2 mb-2 mb-lg-0">
-                  Dashboard
-                </Link>
-                <Link to="/add-expense" className="btn btn-success me-lg-3 mb-2 mb-lg-0">
-                  <i className="fas fa-plus me-2"></i>Add Expense
-                </Link>
-                <Link to="/profile" className="btn btn-outline-light me-lg-3 mb-2 mb-lg-0">
-                  <img 
-                    src={user?.profilePhoto || `https://ui-avatars.com/api/?name=${encodeURIComponent(user?.name || 'User')}&background=random`}
-                    alt={user?.name || 'Profile'} 
-                    className="rounded-circle me-2"
-                    width="32"
-                    height="32"
-                  />
-                  <span className="d-none d-lg-inline">{user?.name}</span>
-                </Link>
-                <button 
-                  onClick={handleLogout} 
-                  className="btn btn-danger mb-2 mb-lg-0"
+            <>
+              <div className="d-flex align-items-center gap-2 d-lg-none">
+                <select
+                  className="form-select form-select-sm"
+                  value={language}
+                  onChange={(e) => changeLanguage(e.target.value)}
                 >
-                  <i className="fas fa-sign-out-alt me-2"></i>
-                  Logout
+                  <option value="en">EN</option>
+                  <option value="hi">हि</option>
+                </select>
+                
+                <button 
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={toggleTheme}
+                >
+                  {theme === 'light' ? '🌙' : '☀️'}
+                </button>
+
+                <button
+                  className="navbar-toggler"
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                >
+                  <i className={`fas fa-bars text-${theme === 'dark' ? 'light' : 'dark'}`}></i>
                 </button>
               </div>
-            </div>
+
+              <div className={`collapse navbar-collapse ${isMenuOpen ? 'show' : ''}`}>
+                <ul className="navbar-nav mx-auto">
+                  <li className="nav-item mx-2">
+                    <div className="text-center">
+                      <small>{translate('balance')}</small>
+                      <div className="h5 mb-0 text-success">₹{balance.toFixed(2)}</div>
+                    </div>
+                  </li>
+                  <li className="nav-item mx-2">
+                    <div className="text-center">
+                      <small>{translate('monthlyBudget')}</small>
+                      <div className="h5 mb-0 text-primary">₹{monthlyBudget.toFixed(2)}</div>
+                    </div>
+                  </li>
+                </ul>
+
+                <div className="d-none d-lg-flex align-items-center gap-3">
+                  <select
+                    className="form-select form-select-sm"
+                    value={language}
+                    onChange={(e) => changeLanguage(e.target.value)}
+                  >
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी</option>
+                  </select>
+                  
+                  <button 
+                    className="btn btn-sm btn-outline-secondary"
+                    onClick={toggleTheme}
+                  >
+                    {theme === 'light' ? '🌙' : '☀️'}
+                  </button>
+
+                  <div className="d-flex gap-2">
+                    <Link to="/add-expense" className="btn btn-primary btn-sm">
+                      <i className="fas fa-plus me-1"></i>
+                      {translate('add')}
+                    </Link>
+
+                    <Link to="/profile" className="btn btn-outline-secondary btn-sm">
+                      <i className="fas fa-user me-1"></i>
+                    </Link>
+
+                    <button 
+                      onClick={handleLogout} 
+                      className="btn btn-outline-danger btn-sm"
+                    >
+                      <i className="fas fa-sign-out-alt"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </>
           )}
         </div>
-      </nav>
+      </motion.nav>
 
       {/* Mobile Bottom Navigation */}
-      <div className="d-lg-none mobile-menu">
-        <Link to="/" className="text-light text-center">
-          <i className="fas fa-home d-block mb-1"></i>
-          <small>Home</small>
-        </Link>
-        <Link to="/add-expense" className="text-light text-center">
-          <i className="fas fa-plus d-block mb-1"></i>
-          <small>Add</small>
-        </Link>
-        <Link to="/profile" className="text-light text-center">
-          <i className="fas fa-user d-block mb-1"></i>
-          <small>Profile</small>
-        </Link>
-      </div>
+      <AnimatePresence>
+        {user && (
+          <motion.div
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            exit={{ y: 100 }}
+            className="mobile-nav fixed-bottom py-2"
+          >
+            <div className="container">
+              <div className="row g-0">
+                <div className="col text-center">
+                  <Link to="/" className="btn btn-link">
+                    <i className="fas fa-home d-block mb-1"></i>
+                    <small>{translate('home')}</small>
+                  </Link>
+                </div>
+                <div className="col text-center">
+                  <Link to="/add-expense" className="btn btn-link">
+                    <i className="fas fa-plus d-block mb-1"></i>
+                    <small>{translate('add')}</small>
+                  </Link>
+                </div>
+                <div className="col text-center">
+                  <Link to="/profile" className="btn btn-link">
+                    <i className="fas fa-user d-block mb-1"></i>
+                    <small>{translate('profile')}</small>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

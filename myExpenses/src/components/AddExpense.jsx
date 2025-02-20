@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import api from '../config/axios';
 import { useWallet } from '../context/WalletContext';
+import { withTranslation } from '../hoc/withTranslation';
 
-const AddExpense = () => {
+const AddExpense = ({ t }) => {
   const navigate = useNavigate();
   const { balance, setBalance, setTransactions } = useWallet();
   const [loading, setLoading] = useState(false);
@@ -74,80 +75,77 @@ const AddExpense = () => {
 
   return (
     <div className="container mt-4">
-      <div className="card shadow">
-        <div className="card-body">
-          <h3 className="card-title mb-4">Add New Expense</h3>
-          <form onSubmit={handleSubmit}>
-            <div className="mb-3">
-              <label className="form-label">Amount</label>
-              <input
-                type="number"
-                className="form-control"
-                name="amount"
-                value={formData.amount}
-                onChange={handleChange}
-                required
-                min="0.01"
-                step="0.01"
-              />
+      <div className="row justify-content-center">
+        <div className="col-md-6">
+          <div className="card">
+            <div className="card-body">
+              <h3 className="card-title text-center mb-4">
+                {t('addNewExpense')}
+              </h3>
+              <form onSubmit={handleSubmit}>
+                <div className="mb-3">
+                  <label className="form-label">{t('description')}</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">{t('amount')}</label>
+                  <input
+                    type="number"
+                    className="form-control"
+                    name="amount"
+                    value={formData.amount}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">{t('category')}</label>
+                  <select
+                    className="form-select"
+                    name="category"
+                    value={formData.category}
+                    onChange={handleChange}
+                  >
+                    <option value="Food">{t('food')}</option>
+                    <option value="Transportation">{t('transportation')}</option>
+                    <option value="Entertainment">{t('entertainment')}</option>
+                    <option value="Shopping">{t('shopping')}</option>
+                    <option value="Bills">{t('bills')}</option>
+                    <option value="Other">{t('other')}</option>
+                  </select>
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">{t('date')}</label>
+                  <input
+                    type="date"
+                    className="form-control"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  className="btn btn-primary w-100"
+                  disabled={loading}
+                >
+                  {loading ? t('loading') : t('addExpense')}
+                </button>
+              </form>
             </div>
-            <div className="mb-3">
-              <label className="form-label">Description</label>
-              <input
-                type="text"
-                className="form-control"
-                name="description"
-                value={formData.description}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Category</label>
-              <select
-                className="form-select"
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-              >
-                <option value="Food">Food</option>
-                <option value="Transportation">Transportation</option>
-                <option value="Entertainment">Entertainment</option>
-                <option value="Shopping">Shopping</option>
-                <option value="Bills">Bills</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div className="mb-3">
-              <label className="form-label">Date</label>
-              <input
-                type="date"
-                className="form-control"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                required
-              />
-            </div>
-            <button 
-              type="submit" 
-              className="btn btn-primary w-100"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                  Adding...
-                </>
-              ) : (
-                'Add Expense'
-              )}
-            </button>
-          </form>
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default AddExpense; 
+export default withTranslation(AddExpense); 

@@ -29,16 +29,17 @@
 
 /* Global styles */
 body {
-  background: var(--light-color);
+  background-color: var(--bg-primary);
   font-family: 'Inter', sans-serif;
-  color: var(--gray-800);
+  color: var(--text-primary);
 }
 
 /* Modern card styling */
 .card {
   border: none;
   border-radius: 1rem;
-  background: white;
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
   box-shadow: var(--shadow-md);
   transition: all 0.3s ease;
 }
@@ -379,3 +380,204 @@ body {
     transform: translateY(0);
   }
 }
+
+/* Theme variables */
+:root[data-theme="light"] {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8f9fa;
+  --text-primary: #212529;
+  --text-secondary: #6c757d;
+  --border-color: #dee2e6;
+  --card-bg: #ffffff;
+  --input-bg: #ffffff;
+  --navbar-bg: #ffffff;
+  --link-color: #0d6efd;
+  --hover-bg: #e9ecef;
+  --modal-bg: #ffffff;
+  --btn-text: #212529;
+  --mobile-nav-bg: #ffffff;
+  --success-text: #198754;
+  --danger-text: #dc3545;
+  --navbar-text: #212529;
+  --dropdown-bg: #ffffff;
+  --input-placeholder: #6c757d;
+  --btn-hover: #e9ecef;
+  --card-shadow: rgba(0, 0, 0, 0.1);
+  --toggle-bg: #e9ecef;
+}
+
+:root[data-theme="dark"] {
+  --bg-primary: #1a1d20;
+  --bg-secondary: #2c3034;
+  --text-primary: #f8f9fa;
+  --text-secondary: #adb5bd;
+  --border-color: #495057;
+  --card-bg: #2c3034;
+  --input-bg: #343a40;
+  --navbar-bg: #212529;
+  --link-color: #6ea8fe;
+  --hover-bg: #3d4246;
+  --modal-bg: #2c3034;
+  --btn-text: #ffffff;
+  --mobile-nav-bg: #212529;
+  --success-text: #75b798;
+  --danger-text: #ea868f;
+  --navbar-text: #ffffff;
+  --dropdown-bg: #343a40;
+  --input-placeholder: #adb5bd;
+  --btn-hover: #495057;
+  --card-shadow: rgba(0, 0, 0, 0.25);
+  --toggle-bg: #495057;
+}
+
+/* Apply theme colors */
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.navbar {
+  background-color: var(--navbar-bg) !important;
+  border-color: var(--border-color);
+  color: var(--navbar-text);
+}
+
+.navbar-brand {
+  color: var(--navbar-text) !important;
+}
+
+.navbar-toggler {
+  color: var(--navbar-text);
+  border-color: var(--border-color);
+}
+
+.navbar-toggler-icon {
+  filter: invert(var(--theme-invert));
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  box-shadow: 0 4px 6px var(--card-shadow);
+}
+
+.modal-content {
+  background-color: var(--modal-bg);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.modal-header, .modal-footer {
+  border-color: var(--border-color);
+}
+
+.form-control, .form-select {
+  background-color: var(--input-bg);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+.form-control::placeholder {
+  color: var(--input-placeholder);
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: var(--input-bg);
+  color: var(--text-primary);
+  border-color: var(--link-color);
+  box-shadow: 0 0 0 0.25rem rgba(110, 168, 254, 0.25);
+}
+
+.dropdown-menu {
+  background-color: var(--dropdown-bg);
+  border-color: var(--border-color);
+}
+
+.dropdown-item {
+  color: var(--text-primary);
+}
+
+.dropdown-item:hover {
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
+}
+
+.text-muted {
+  color: var(--text-secondary) !important;
+}
+
+.btn-link {
+  color: var(--link-color);
+  text-decoration: none;
+}
+
+.btn-link:hover {
+  color: var(--link-color);
+  filter: brightness(90%);
+}
+
+.fixed-bottom {
+  background-color: var(--mobile-nav-bg) !important;
+}
+
+/* Theme-specific text colors */
+.text-success {
+  color: var(--success-text) !important;
+}
+
+.text-danger {
+  color: var(--danger-text) !important;
+}
+
+/* Theme-aware buttons */
+.btn-outline-secondary {
+  color: var(--text-primary);
+  border-color: var(--border-color);
+  background-color: transparent;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--btn-hover);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+/* Mobile navigation theme */
+.mobile-nav {
+  background-color: var(--mobile-nav-bg);
+  border-top-color: var(--border-color);
+}
+
+.mobile-nav a {
+  color: var(--text-primary);
+}
+
+/* Add transition for smooth theme switching */
+* {
+  transition: background-color 0.3s ease, 
+              color 0.3s ease, 
+              border-color 0.3s ease,
+              box-shadow 0.3s ease;
+}
+
+/* Custom scrollbar for dark mode */
+[data-theme="dark"] {
+  scrollbar-color: var(--border-color) var(--bg-primary);
+}
+
+[data-theme="dark"]::-webkit-scrollbar {
+  width: 12px;
+}
+
+[data-theme="dark"]::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+[data-theme="dark"]::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 6px;
+  border: 3px solid var(--bg-primary);
+}
+
+/* Add these to your existing styles */
