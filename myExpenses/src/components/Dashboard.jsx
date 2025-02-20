@@ -63,8 +63,8 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="container">
-      <div className="row g-3">
+    <div className="container ">
+      <div className="row g-3 m-2">
         <div className="col-12 col-md-4">
           <div className="card dashboard-card primary-gradient">
             <div className="card-body">
@@ -101,11 +101,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="row mb-4">
-        <div className="col">
-          <ExportExpenses />
-        </div>
-      </div>
+     
 
       <div className="row g-3 mb-4">
         <div className="col-12 col-md-6 col-lg-3">
@@ -130,6 +126,12 @@ const Dashboard = () => {
             <option value="amount">Sort by Amount</option>
             <option value="category">Sort by Category</option>
           </select>
+        </div>
+      </div>
+
+      <div className="row mt-4">
+        <div className="col">
+          <ExportExpenses />
         </div>
       </div>
 

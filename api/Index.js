@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 
 // CORS Configuration
 app.use((req, res, next) => {
-  const allowedOrigins = ['https://farmeshexpenses.netlify.app', 'http://localhost:5173'];
+  const allowedOrigins = ['https://farmeshexpenses.netlify.app', 'http://localhost:5173', 'http://localhost:5173'];
   const origin = req.headers.origin;
   
   if (allowedOrigins.includes(origin)) {
