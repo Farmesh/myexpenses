@@ -69,7 +69,7 @@ const Dashboard = () => {
           <div className="card dashboard-card primary-gradient">
             <div className="card-body">
               <h5 className="card-title text-white">Current Balance</h5>
-              <h2 className="text-white mb-0">${balance.toFixed(2)}</h2>
+              <h2 className="text-white mb-0">₹{balance.toFixed(2)}</h2>
             </div>
           </div>
         </div>
@@ -78,7 +78,7 @@ const Dashboard = () => {
             <div className="card-body">
               <h5 className="card-title text-white">Monthly Budget</h5>
               <h2 className="text-white mb-0">
-                ${monthlyBudget.toFixed(2)}
+              ₹{monthlyBudget.toFixed(2)}
                 <button 
                   className="btn btn-light btn-sm ms-2"
                   onClick={() => setShowBudgetModal(true)}
@@ -94,7 +94,7 @@ const Dashboard = () => {
             <div className="card-body">
               <h5 className="card-title text-white">Total Expenses</h5>
               <h2 className="text-white mb-0">
-                ${expenses.reduce((acc, exp) => acc + exp.amount, 0).toFixed(2)}
+              ₹{expenses.reduce((acc, exp) => acc + exp.amount, 0).toFixed(2)}
               </h2>
             </div>
           </div>

@@ -54,7 +54,7 @@ const ExpenseCard = ({ expense, onDelete }) => {
           <h5 className="card-title mb-2 mb-sm-0">{expense.description}</h5>
           <span className="badge bg-primary">{expense.category}</span>
         </div>
-        <h3 className="text-primary mb-3">${expense.amount}</h3>
+        <h3 className="text-primary mb-3">₹{expense.amount}</h3>
         <p className="text-light mb-3">
           <i className="far fa-calendar me-2"></i>
           {new Date(expense.date).toLocaleDateString()}
