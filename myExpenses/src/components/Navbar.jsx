@@ -36,11 +36,12 @@ const Navbar = () => {
               <div className="d-flex flex-column flex-lg-row align-items-lg-center ms-auto">
                 <div className="text-light me-lg-4 mb-2 mb-lg-0">
                   <small className="d-block text-light">Balance</small>
-                  <span className="fw-bold">${balance.toFixed(2)}</span>
+                  <span className="fw-bold">
+                  ₹{balance.toFixed(2)}</span>
                 </div>
                 <div className="text-light me-lg-4 mb-2 mb-lg-0">
                   <small className="d-block text-light">Monthly Budget</small>
-                  <span className="fw-bold">${monthlyBudget.toFixed(2)}</span>
+                  <span className="fw-bold">₹{monthlyBudget.toFixed(2)}</span>
                 </div>
                 <Link to="/" className="btn btn-outline-light me-lg-2 mb-2 mb-lg-0">
                   Dashboard
