@@ -55,7 +55,7 @@ const AddExpense = () => {
       setTransactions(data.transactions);
       
       toast.success('Expense added successfully');
-      navigate('/expenses');
+      navigate('/');
     } catch (error) {
       console.error('Add Expense Error:', error);
       toast.error(error.response?.data?.message || 'Failed to add expense');
