@@ -49,6 +49,17 @@ const translations = {
     emailExists: 'Email already exists',
     loginFailed: 'Invalid email or password',
     networkError: 'Network error. Please try again.',
+    setMonthlyBudget: 'Set Monthly Budget',
+    enterBudgetAmount: 'Enter Budget Amount',
+    enterAmount: 'Enter amount',
+    setting: 'Setting...',
+    setBudget: 'Set Budget',
+    budgetSetSuccess: 'Monthly budget set successfully',
+    budgetSetError: 'Failed to set monthly budget',
+    allCategories: 'All Categories',
+    startDate: 'Start Date',
+    endDate: 'End Date',
+    sortBy: 'Sort By',
     // Add more translations
   },
   hi: {
@@ -97,6 +108,17 @@ const translations = {
     emailExists: 'ईमेल पहले से मौजूद है',
     loginFailed: 'अमान्य ईमेल या पासवर्ड',
     networkError: 'नेटवर्क त्रुटि। कृपया पुनः प्रयास करें।',
+    setMonthlyBudget: 'मासिक बजट सेट करें',
+    enterBudgetAmount: 'बजट राशि दर्ज करें',
+    enterAmount: 'राशि दर्ज करें',
+    setting: 'सेट कर रहे हैं...',
+    setBudget: 'बजट सेट करें',
+    budgetSetSuccess: 'मासिक बजट सफलतापूर्वक सेट किया गया',
+    budgetSetError: 'बजट सेट करने में विफल',
+    allCategories: 'सभी श्रेणियां',
+    startDate: 'आरंभ तिथि',
+    endDate: 'अंतिम तिथि',
+    sortBy: 'क्रमबद्ध करें',
     // Add more translations
   }
 };

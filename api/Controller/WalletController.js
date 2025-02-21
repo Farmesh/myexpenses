@@ -57,7 +57,7 @@ export const setMonthlyBudget = async (req, res) => {
   try {
     const { amount } = req.body;
     
-    if (!amount || isNaN(amount)) {
+    if (!amount || isNaN(amount) || amount < 0) {
       return res.status(400).json({ message: 'Invalid amount' });
     }
 
@@ -67,12 +67,12 @@ export const setMonthlyBudget = async (req, res) => {
     if (!wallet) {
       wallet = await Wallet.create({
         user: req.user._id,
-        currentBalance: parsedAmount, // Set initial balance to budget amount
+        currentBalance: parsedAmount,
         monthlyBudget: parsedAmount,
         transactions: [{
           type: 'credit',
           amount: parsedAmount,
-          description: `Initial monthly budget set to ${parsedAmount}`,
+          description: 'Initial monthly budget set',
           date: new Date()
         }]
       });
@@ -83,12 +83,14 @@ export const setMonthlyBudget = async (req, res) => {
       wallet.monthlyBudget = parsedAmount;
       
       // Add transaction record for budget adjustment
-      wallet.transactions.push({
-        type: difference >= 0 ? 'credit' : 'debit',
-        amount: Math.abs(difference),
-        description: `Monthly budget adjusted to ${parsedAmount}`,
-        date: new Date()
-      });
+      if (difference !== 0) {
+        wallet.transactions.push({
+          type: difference > 0 ? 'credit' : 'debit',
+          amount: Math.abs(difference),
+          description: `Monthly budget adjusted to ₹${parsedAmount}`,
+          date: new Date()
+        });
+      }
       
       await wallet.save();
     }

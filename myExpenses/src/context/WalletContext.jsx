@@ -91,13 +91,11 @@ export const WalletProvider = ({ children }) => {
   const setNewMonthlyBudget = async (amount) => {
     try {
       const { data } = await api.post('/api/wallet/monthly-budget', { amount });
-      setBalance(data.currentBalance);
-      setMonthlyBudget(data.monthlyBudget);
-      setTransactions(data.transactions);
-      return data;
+      updateWalletState(data);
+      return { success: true, data };
     } catch (error) {
       console.error('Failed to set monthly budget:', error);
-      throw new Error('Failed to set monthly budget');
+      throw new Error(error.response?.data?.message || 'Failed to set monthly budget');
     }
   };
 

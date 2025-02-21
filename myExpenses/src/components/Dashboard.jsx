@@ -7,13 +7,20 @@ import { useWallet } from '../context/WalletContext';
 import ExportExpenses from './ExportExpenses';
 import { motion, AnimatePresence } from 'framer-motion';
 import { withTranslation } from '../hoc/withTranslation';
+import MonthlyBudget from './MonthlyBudget';
+import api from '../config/axios';
 
 const Dashboard = ({ t }) => {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const { balance, monthlyBudget, setNewMonthlyBudget } = useWallet();
-  const [filter, setFilter] = useState('all'); // all, today, week, month
-  const [sortBy, setSortBy] = useState('date'); // date, amount, category
+  const [filters, setFilters] = useState({
+    category: 'all',
+    startDate: '',
+    endDate: '',
+    sortBy: 'date',
+    sortOrder: 'desc'
+  });
   const [showBudgetModal, setShowBudgetModal] = useState(false);
   const [newBudget, setNewBudget] = useState('');
 
@@ -37,14 +44,15 @@ const Dashboard = ({ t }) => {
 
   useEffect(() => {
     fetchExpenses();
-  }, [filter, sortBy]);
+  }, []);
 
   const fetchExpenses = async () => {
     try {
-      const { data } = await axios.get(`https://myexpenses-wf9z.onrender.com/api/expenses?filter=${filter}&sort=${sortBy}`);
+      setLoading(true);
+      const { data } = await api.get('/api/expenses');
       setExpenses(data);
     } catch (error) {
-      toast.error('Failed to fetch expenses');
+      console.error('Error fetching expenses:', error);
     } finally {
       setLoading(false);
     }
@@ -72,6 +80,33 @@ const Dashboard = ({ t }) => {
     }
   };
 
+  // Filter and sort expenses
+  const filteredExpenses = expenses.filter(expense => {
+    if (filters.category !== 'all' && expense.category !== filters.category) {
+      return false;
+    }
+    
+    if (filters.startDate && new Date(expense.date) < new Date(filters.startDate)) {
+      return false;
+    }
+    
+    if (filters.endDate && new Date(expense.date) > new Date(filters.endDate)) {
+      return false;
+    }
+    
+    return true;
+  }).sort((a, b) => {
+    const order = filters.sortOrder === 'asc' ? 1 : -1;
+    
+    if (filters.sortBy === 'date') {
+      return (new Date(b.date) - new Date(a.date)) * order;
+    }
+    if (filters.sortBy === 'amount') {
+      return (b.amount - a.amount) * order;
+    }
+    return 0;
+  });
+
   if (loading) {
     return (
       <div className="text-center py-5">
@@ -95,19 +130,25 @@ const Dashboard = ({ t }) => {
           className="col-md-4"
           variants={itemVariants}
         >
-          <div className="card h-100">
+          <motion.div 
+            className="card h-100"
+            whileHover={{ y: -5 }}
+          >
             <div className="card-body text-center">
               <h6 className="text-muted mb-2">{t('balance')}</h6>
               <h3 className="text-success mb-0">₹{balance.toFixed(2)}</h3>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
 
         <motion.div 
           className="col-md-4"
           variants={itemVariants}
         >
-          <div className="card h-100">
+          <motion.div 
+            className="card h-100"
+            whileHover={{ y: -5 }}
+          >
             <div className="card-body text-center">
               <h6 className="text-muted mb-2">{t('monthlyBudget')}</h6>
               <h3 className="text-primary mb-0">₹{monthlyBudget.toFixed(2)}</h3>
@@ -118,7 +159,7 @@ const Dashboard = ({ t }) => {
                 {t('setBudget')}
               </button>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
 
         <motion.div 
@@ -136,35 +177,71 @@ const Dashboard = ({ t }) => {
         </motion.div>
       </motion.div>
 
-      {/* Filters and Controls */}
+      {/* Filters Section */}
       <motion.div 
         className="card mb-4"
         variants={itemVariants}
       >
         <div className="card-body">
-          <div className="row g-3 mb-4">
-            <div className="col-12 col-md-6 col-lg-3">
+          <div className="row g-3">
+            <div className="col-md-3">
+              <label className="form-label">{t('category')}</label>
               <select
                 className="form-select"
-                value={filter}
-                onChange={(e) => setFilter(e.target.value)}
+                value={filters.category}
+                onChange={(e) => setFilters({...filters, category: e.target.value})}
               >
-                <option value="all">All Time</option>
-                <option value="today">Today</option>
-                <option value="week">This Week</option>
-                <option value="month">This Month</option>
+                <option value="all">{t('allCategories')}</option>
+                <option value="Food">{t('food')}</option>
+                <option value="Transportation">{t('transportation')}</option>
+                <option value="Entertainment">{t('entertainment')}</option>
+                <option value="Shopping">{t('shopping')}</option>
+                <option value="Bills">{t('bills')}</option>
+                <option value="Other">{t('other')}</option>
               </select>
             </div>
-            <div className="col-12 col-md-6 col-lg-3">
-              <select
-                className="form-select"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="date">Sort by Date</option>
-                <option value="amount">Sort by Amount</option>
-                <option value="category">Sort by Category</option>
-              </select>
+            
+            <div className="col-md-3">
+              <label className="form-label">{t('startDate')}</label>
+              <input
+                type="date"
+                className="form-control"
+                value={filters.startDate}
+                onChange={(e) => setFilters({...filters, startDate: e.target.value})}
+              />
+            </div>
+            
+            <div className="col-md-3">
+              <label className="form-label">{t('endDate')}</label>
+              <input
+                type="date"
+                className="form-control"
+                value={filters.endDate}
+                onChange={(e) => setFilters({...filters, endDate: e.target.value})}
+              />
+            </div>
+            
+            <div className="col-md-3">
+              <label className="form-label">{t('sortBy')}</label>
+              <div className="input-group">
+                <select
+                  className="form-select"
+                  value={filters.sortBy}
+                  onChange={(e) => setFilters({...filters, sortBy: e.target.value})}
+                >
+                  <option value="date">{t('date')}</option>
+                  <option value="amount">{t('amount')}</option>
+                </select>
+                <button
+                  className="btn btn-outline-secondary"
+                  onClick={() => setFilters({
+                    ...filters,
+                    sortOrder: filters.sortOrder === 'asc' ? 'desc' : 'asc'
+                  })}
+                >
+                  <i className={`fas fa-sort-${filters.sortOrder === 'asc' ? 'up' : 'down'}`}></i>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -176,21 +253,35 @@ const Dashboard = ({ t }) => {
         variants={itemVariants}
       >
         <AnimatePresence>
-          {expenses.map(expense => (
-            <motion.div 
-              key={expense._id}
-              className="col-md-6 col-lg-4"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.2 }}
-            >
-              <ExpenseCard 
-                expense={expense} 
-                onDelete={handleDelete}
-              />
-            </motion.div>
-          ))}
+          {loading ? (
+            <div className="col-12 text-center py-5">
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">{t('loading')}</span>
+              </div>
+            </div>
+          ) : filteredExpenses.length === 0 ? (
+            <div className="col-12 text-center py-5">
+              <h5 className="text-muted">{t('noExpenses')}</h5>
+            </div>
+          ) : (
+            filteredExpenses.map(expense => (
+              <motion.div
+                key={expense._id}
+                className="col-md-6 col-lg-4"
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.2 }}
+              >
+                <ExpenseCard 
+                  expense={expense}
+                  onDelete={handleDelete}
+                  onUpdate={fetchExpenses}
+                />
+              </motion.div>
+            ))
+          )}
         </AnimatePresence>
       </motion.div>
 
@@ -213,40 +304,30 @@ const Dashboard = ({ t }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="modal show d-block"
+            className="modal-backdrop"
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.5)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              zIndex: 1050
+            }}
           >
             <motion.div
               initial={{ scale: 0.8, y: 50 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, y: 50 }}
               className="modal-dialog"
+              onClick={(e) => e.stopPropagation()}
             >
-              <div className="modal-header ">
-                <h5 className="modal-title">Set Monthly Budget</h5>
-                <button type="button" className="btn-close" onClick={() => setShowBudgetModal(false)}></button>
+              <div className="modal-content">
+                <MonthlyBudget onClose={() => setShowBudgetModal(false)} />
               </div>
-              <form onSubmit={handleSetBudget}>
-                <div className="modal-body">
-                  <div className="form-group">
-                    <label>Budget Amount</label>
-                    <input
-                      type="number"
-                      className="form-control"
-                      value={newBudget}
-                      onChange={(e) => setNewBudget(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" onClick={() => setShowBudgetModal(false)}>
-                    Cancel
-                  </button>
-                  <button type="submit" className="btn btn-primary">
-                    Set Budget
-                  </button>
-                </div>
-              </form>
             </motion.div>
           </motion.div>
         )}

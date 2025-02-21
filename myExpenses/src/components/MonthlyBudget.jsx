@@ -1,82 +1,89 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import axios from 'axios';
 import { toast } from 'react-toastify';
-import { setNewMonthlyBudget } from '../context/WalletContext';
+import { useWallet } from '../context/WalletContext';
+import { withTranslation } from '../hoc/withTranslation';
 
-const MonthlyBudget = () => {
+const MonthlyBudget = ({ onClose, t }) => {
+  const { setNewMonthlyBudget } = useWallet();
   const [budget, setBudget] = useState('');
-  const [categories, setCategories] = useState([
-    { name: 'Food', limit: '' },
-    { name: 'Transportation', limit: '' },
-    { name: 'Entertainment', limit: '' },
-    { name: 'Shopping', limit: '' },
-    { name: 'Bills', limit: '' }
-  ]);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    try {
-      if (!budget || isNaN(budget) || parseFloat(budget) <= 0) {
-        toast.error('Please enter a valid budget amount');
-        return;
-      }
+    
+    if (!budget || isNaN(budget) || parseFloat(budget) <= 0) {
+      toast.error(t('invalidAmount'));
+      return;
+    }
 
+    setLoading(true);
+    try {
       await setNewMonthlyBudget(parseFloat(budget));
-      toast.success('Monthly budget set successfully');
-      setBudget('');
+      toast.success(t('budgetSetSuccess'));
+      onClose();
     } catch (error) {
       console.error('Budget setting error:', error);
-      toast.error(error.message || 'Failed to set monthly budget');
+      toast.error(error.message || t('budgetSetError'));
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="card shadow-lg"
-    >
-      <div className="card-body">
-        <h3 className="card-title mb-4">Set Monthly Budget</h3>
+    <div className="modal-content border-0">
+      <div className="modal-header border-0">
+        <h5 className="modal-title">{t('setMonthlyBudget')}</h5>
+        <button 
+          type="button" 
+          className="btn-close" 
+          onClick={onClose}
+        ></button>
+      </div>
+      <div className="modal-body">
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="form-label">Total Monthly Budget</label>
-            <input
-              type="number"
-              className="form-control form-control-lg"
-              value={budget}
-              onChange={(e) => setBudget(e.target.value)}
-              placeholder="Enter total budget"
-              required
-            />
-          </div>
-
-          <h4 className="mb-3">Category Budgets</h4>
-          {categories.map((category, index) => (
-            <div key={index} className="mb-3">
-              <label className="form-label">{category.name}</label>
+          <div className="mb-3">
+            <label className="form-label">{t('enterBudgetAmount')}</label>
+            <div className="input-group">
+              <span className="input-group-text">₹</span>
               <input
                 type="number"
-                className="form-control"
-                value={category.limit}
-                onChange={(e) => {
-                  const newCategories = [...categories];
-                  newCategories[index].limit = e.target.value;
-                  setCategories(newCategories);
-                }}
-                placeholder={`Budget for ${category.name}`}
+                className="form-control form-control-lg"
+                value={budget}
+                onChange={(e) => setBudget(e.target.value)}
+                placeholder={t('enterAmount')}
+                required
+                min="0"
+                step="0.01"
               />
             </div>
-          ))}
-
-          <button type="submit" className="btn btn-primary w-100">
-            Set Budget
-          </button>
+          </div>
+          <div className="d-flex gap-2 justify-content-end">
+            <button 
+              type="button" 
+              className="btn btn-outline-secondary"
+              onClick={onClose}
+              disabled={loading}
+            >
+              {t('cancel')}
+            </button>
+            <button 
+              type="submit" 
+              className="btn btn-primary"
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  {t('setting')}
+                </>
+              ) : t('setBudget')}
+            </button>
+          </div>
         </form>
       </div>
-    </motion.div>
+    </div>
   );
 };
 
-export default MonthlyBudget; 
+export default withTranslation(MonthlyBudget); 
