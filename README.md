@@ -1,73 +1,71 @@
 Expense Tracker Website
-Welcome to the Expense Tracker project! This is a web-based application designed to help users track their daily expenses and manage their budgets efficiently. Whether you're managing personal finances or keeping track of business expenses, this app provides an easy-to-use interface for keeping your spending in check.
+
+Overview
+
+The Expense Tracker Website is a web application that helps users manage their daily expenses efficiently. Users can add, edit, and delete expenses, track their spending patterns, and visualize their financial data through graphical analysis.
 
 Features
-Track Expenses: Add, view, and manage your daily expenses.
-Categories: Organize expenses by category (e.g., Food, Transportation, Entertainment, etc.).
-Budget Management: Set monthly or yearly budgets and track how much you've spent.
-Date Filtering: View your expenses by date range (daily, weekly, monthly).
-Expense Summary: Visual summaries of your spending using charts and graphs.
-User Authentication: Secure login and sign-up functionality.
-Responsive Design: The application is mobile-friendly and works on all screen sizes.
-Tech Stack
-Frontend: HTML, CSS, JavaScript (React.js)
-Backend: Node.js, Express.js
-Database: MongoDB
-Authentication: JSON Web Tokens (JWT) for secure login
-Styling: Bootstrap 
 
-Getting Started
-Follow the instructions below to set up this project on your local machine for development and testing purposes.
+User Authentication: Sign up, log in, and manage profiles.
+
+Expense Management: Add, edit, and delete expenses.
+
+Date-wise Expense Tracking: Record expenses based on date.
+
+Total Calculation: Automatically calculates the total expenses.
+
+Responsive Design: Mobile and desktop-friendly UI.
+
+Tech Stack
+
+Frontend: React with Vite, Axios
+
+Backend: Node.js, Express
+
+Database: MongoDB
+
+Authentication: JWT (JSON Web Tokens)
+
+Charts & Graphs: Chart.js or Recharts
+
+Installation
 
 Prerequisites
-Node.js - Ensure Node.js is installed on your machine.
-MongoDB - A local or cloud MongoDB database is required.
-Installation
+
+Ensure you have the following installed:
+
+Node.js (Latest LTS version recommended)
+
+MongoDB (Local or Cloud-based)
+
+Steps to Run Locally
+
 Clone the repository:
 
-bash
-git clone https://github.com/yourusername/expense-tracker-website.git
-cd expense-tracker-website
-Install dependencies for both frontend and backend:
+git clone https://github.com/yourusername/expense-tracker.git
+cd expense-tracker
 
-In the project root directory, run the following:
-bash
-bash
-Copy
+Backend Setup:
+
+cd backend
 npm install
-Set up environment variables:
-bash
+npm start
 
-Create a .env file in the root directory and add the following variables:
-bash
-ini
-Copy
-MONGO_URI=your-mongodb-uri
-JWT_SECRET=your-jwt-secret
-Run the development server:
-bash
-For the backend (API server):
+Frontend Setup:
 
-bash
-Copy
-npm run server
-For the frontend (React app):
-bash
-bash
-Copy
-npm run client
-bash
-The app should now be running locally at http://localhost:3000.
+cd frontend
+npm install
+npm run dev
 
-Usage
-Once you visit the app in your browser, you can sign up or log in using your credentials.
-You can start adding your expenses, setting a budget, and viewing your spending in different visualizations.
-Use the category filters to organize your expenses and keep track of your spending in various categories.
 
 Contributing
-Contributions are welcome! Feel free to fork the repository, make changes, and submit pull requests. Please ensure that you follow the guidelines below:
 
-Create issues for any bugs or feature requests.
-Ensure that all code is well-documented.
-Write tests for any new features.
-Follow consistent code style practices.
+Fork the repo
+
+Create a new branch (feature-branch)
+
+Commit your changes
+
+Push to the branch
+
+Open a Pull Request
