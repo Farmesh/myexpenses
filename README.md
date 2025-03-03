@@ -43,7 +43,7 @@ Clone the repository:
 bash
 git clone [https://github.com/yourusername/expense-tracker.git](https://github.com/Farmesh/myexpenses)
 cd expense-tracker
-
+bash
 Backend Setup:
 
 cd backend
