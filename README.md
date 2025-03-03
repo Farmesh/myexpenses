@@ -26,7 +26,6 @@ Database: MongoDB
 
 Authentication: JWT (JSON Web Tokens)
 
-Charts & Graphs: Chart.js or Recharts
 
 Installation
 
@@ -41,8 +40,8 @@ MongoDB (Local or Cloud-based)
 Steps to Run Locally
 
 Clone the repository:
-
-git clone https://github.com/yourusername/expense-tracker.git
+bash
+git clone [https://github.com/yourusername/expense-tracker.git](https://github.com/Farmesh/myexpenses)
 cd expense-tracker
 
 Backend Setup:
